@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Car.h"
 
 int main() { 
 
@@ -6,6 +7,9 @@ int main() {
 
     std::cout << "This is a C++14 project." << std::endl;
 
+    Entities::Car myCar("Deloitte Car", 100, 50);
+    myCar.StartEngine();
+
     return 0;
 
-}
+} 
