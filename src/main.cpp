@@ -2,6 +2,11 @@
 #include "Car.h"
 
 
+// TODO: add functionality to compute lat, long, heading, speed, timestamp'. 
+// TODO: Add a websocket library 
+// TODO: Add a JSON library to serialize/deserialize data for websocket communication.
+
+
 // Function to display available commands
 void displayCommands() {
 std::cout << "\n--- Car Control Commands ---" << std::endl;
@@ -40,7 +45,7 @@ int main() {
                 myCar.StartEngine();
                 break;
             case 'w': // Accelerate
-                myCar.Accelerate(10); // Accelerate by 10 mph
+                myCar.Accelerate(10.0, 10.0); // Accelerate by 10 mps over 10 seconds
                 break;
             case 'b': // Brake
                 myCar.Brake();

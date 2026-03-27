@@ -32,10 +32,10 @@ void Car::StartEngine() {
 }
 
 // Accelerate
-void Car::Accelerate(int amount) {
+void Car::Accelerate(double amount, double time) {
     if (engineStart_) {
-        speed_ += amount;
-        std::cout << name_ << " accelerated by " << amount << " mph." << std::endl;
+        VehicleState_.speed_mps += amount; // Simple acceleration model: speed increases by amount * time
+        std::cout << name_ << " accelerated by " << amount << " mps." << "New speed: " << VehicleState_.speed_mps << " mps." << std::endl;
     } else {
         std::cout << name_ << "'s engine is off. Cannot accelerate." << std::endl;
     }
@@ -43,9 +43,9 @@ void Car::Accelerate(int amount) {
 
 // Brake
 void Car::Brake() {
-    if (speed_ > 0) {
+    if (VehicleState_.speed_mps > 0) {
         speed_ = 0; // Simple brake, stops immediately
-        std::cout << name_ << " braked. Speed is now 0 mph." << std::endl;
+        std::cout << name_ << " braked. Speed is now 0 mps." << std::endl;
     } else {
         std::cout << name_ << " is already stopped." << std::endl;
     }
@@ -53,7 +53,19 @@ void Car::Brake() {
 
 // Display Speed
 void Car::DisplaySpeed() const {
-    std::cout << name_ << " current speed: " << speed_ << " mph." << std::endl;
+    std::cout << name_ << " current speed: " << VehicleState_.speed_mps << " mps." << std::endl;
 }
 
+void Car::UpdatePosition(double latitude, double longitude) {
+    VehicleState_.latitude = latitude;
+    VehicleState_.longitude = longitude;
+    std::cout << name_ << " position updated to Latitude: " << latitude << ", Longitude: " << longitude << std::endl;
+
 };
+
+void Car::UpdateHeading(double heading) {
+    VehicleState_.heading = heading;
+    std::cout << name_ << " heading updated to: " << heading << " degrees." << std::endl;
+};
+
+}
