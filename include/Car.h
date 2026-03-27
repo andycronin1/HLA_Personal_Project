@@ -13,6 +13,9 @@ public:
 
     // Public Member Functions
     void StartEngine();
+    void Accelerate(int amount); // Renamed to match C++ convention (PascalCase for public methods)
+    void Brake();
+    void DisplaySpeed() const; // Renamed to match C++ convention
 
 
     // Destructor
@@ -23,6 +26,7 @@ private:
     int health_;
     int armour_;
     bool engineStart_;
+    int speed_;
 };
 
 }

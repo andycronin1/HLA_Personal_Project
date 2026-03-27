@@ -30,4 +30,30 @@ void Car::StartEngine() {
     }
     std::cout << name_ << "'s engine started." << std::endl;
 }
+
+// Accelerate
+void Car::Accelerate(int amount) {
+    if (engineStart_) {
+        speed_ += amount;
+        std::cout << name_ << " accelerated by " << amount << " mph." << std::endl;
+    } else {
+        std::cout << name_ << "'s engine is off. Cannot accelerate." << std::endl;
+    }
+}
+
+// Brake
+void Car::Brake() {
+    if (speed_ > 0) {
+        speed_ = 0; // Simple brake, stops immediately
+        std::cout << name_ << " braked. Speed is now 0 mph." << std::endl;
+    } else {
+        std::cout << name_ << " is already stopped." << std::endl;
+    }
+}
+
+// Display Speed
+void Car::DisplaySpeed() const {
+    std::cout << name_ << " current speed: " << speed_ << " mph." << std::endl;
+}
+
 };
