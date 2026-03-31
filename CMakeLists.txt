@@ -11,8 +11,11 @@ set(SOURCES
     # Add any other .cpp files here
 )
 
+add_subdirectory(external/ixwebsocket)
+
 # Add the executable target
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Optional: Add include directory
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ixwebsocket)

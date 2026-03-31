@@ -1,14 +1,15 @@
 #include <iostream>
 #include "Car.h"
-
+#include <ixwebsocket/IXNetSystem.h>
+#include <ixwebsocket/IXWebSocket.h>
+#include <chrono>
+#include <thread>
 
 // TODO: add functionality to compute lat, long, heading, speed, timestamp'. 
 // TODO: Add a websocket library 
 // TODO: Add a JSON library to serialize/deserialize data for websocket communication.
 
-// Start the websocket server and listen for incoming connections from the client (e.g., a web application).
-// When a client connects, send the current state of the car (lat, long, heading, speed) to the client in JSON format.
-// Continuously update the car's state based on user input and send updates to the client in real-time via the websocket connection.
+
 
 // Function to display available commands
 void displayCommands() {
@@ -25,6 +26,43 @@ std::cout << "----------------------------" << std::endl;
 };   
 
 int main() { 
+
+    // Start the websocket server and listen for incoming connections from the client (e.g., a web application).
+    // When a client connects, send the current state of the car (lat, long, heading, speed) to the client in JSON format.
+    // Continuously update the car's state based on user input and send updates to the client in real-time via the websocket connection.
+
+    // --------- WebSocket Setup --------- 
+    ix::initNetSystem();
+    ix::WebSocket webSocket;
+
+    webSocket.setUrl("wss://ws.ifelse.io");
+
+    webSocket.setOnMessageCallback(
+        [&webSocket](const ix::WebSocketMessagePtr& msg)
+        {
+            if (msg->type == ix::WebSocketMessageType::Open)
+            {
+                std::cout << "Connected\n";
+                webSocket.send("hello from ixwebsocket");
+            }
+            else if (msg->type == ix::WebSocketMessageType::Message)
+            {
+                std::cout << "Received: " << msg->str << "\n";
+            }
+            else if (msg->type == ix::WebSocketMessageType::Error)
+            {
+                std::cout << "Error: " << msg->errorInfo.reason << "\n";
+            }
+        });
+
+    webSocket.start();
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    webSocket.stop();
+
+    ix::uninitNetSystem();
+
+    // --------- End WebSocket Setup ---------
 
     // Confirm C++ version
     if (__cplusplus == 202302L) std::cout << "C++23";
