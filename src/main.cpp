@@ -6,6 +6,9 @@
 // TODO: Add a websocket library 
 // TODO: Add a JSON library to serialize/deserialize data for websocket communication.
 
+// Start the websocket server and listen for incoming connections from the client (e.g., a web application).
+// When a client connects, send the current state of the car (lat, long, heading, speed) to the client in JSON format.
+// Continuously update the car's state based on user input and send updates to the client in real-time via the websocket connection.
 
 // Function to display available commands
 void displayCommands() {
