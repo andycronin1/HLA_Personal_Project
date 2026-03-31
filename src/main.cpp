@@ -15,6 +15,7 @@ std::cout << "  'o' : Stop Engine" << std::endl;
 std::cout << "  'w' : Accelerate (by 10 mph)" << std::endl;
 std::cout << "  'b' : Brake (stop immediately)" << std::endl;
 std::cout << "  'd' : Display Current Speed" << std::endl;
+std::cout << "  'v' : Display Vehicle State" << std::endl;
 std::cout << "  'h' : Show Commands" << std::endl;
 std::cout << "  'q' : Quit" << std::endl;
 std::cout << "----------------------------" << std::endl;
@@ -52,6 +53,9 @@ int main() {
                 break;
             case 'd': // Display Speed
                 myCar.DisplaySpeed();
+                break;
+            case 'v': // Display Vehicle State
+                myCar.DisplayVehicleState();
                 break;
             case 'h': // Show Commands
                 displayCommands();

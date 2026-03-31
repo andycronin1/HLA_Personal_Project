@@ -44,7 +44,7 @@ void Car::Accelerate(double amount, double time) {
 // Brake
 void Car::Brake() {
     if (VehicleState_.speed_mps > 0) {
-        speed_ = 0; // Simple brake, stops immediately
+        VehicleState_.speed_mps = 0; // Simple brake, stops immediately
         std::cout << name_ << " braked. Speed is now 0 mps." << std::endl;
     } else {
         std::cout << name_ << " is already stopped." << std::endl;
@@ -61,11 +61,20 @@ void Car::UpdatePosition(double latitude, double longitude) {
     VehicleState_.longitude = longitude;
     std::cout << name_ << " position updated to Latitude: " << latitude << ", Longitude: " << longitude << std::endl;
 
-};
+}
 
 void Car::UpdateHeading(double heading) {
     VehicleState_.heading = heading;
     std::cout << name_ << " heading updated to: " << heading << " degrees." << std::endl;
-};
+}
+
+void Car::DisplayVehicleState() const {
+    std::cout << name_ << " Vehicle State:" << std::endl;
+    std::cout << "  Latitude: " << VehicleState_.latitude << std::endl;
+    std::cout << "  Longitude: " << VehicleState_.longitude << std::endl;
+    std::cout << "  Heading: " << VehicleState_.heading << " degrees" << std::endl;
+    std::cout << "  Speed: " << VehicleState_.speed_mps << " mps" << std::endl;
+
+}
 
 }
