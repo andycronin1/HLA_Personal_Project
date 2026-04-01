@@ -1,4 +1,4 @@
-# HLA Personal Project
+# HLA Car Sim 
 
 A C++17 car simulation with real-time WebSocket telemetry. The simulation accepts keyboard commands to control a vehicle (start engine, accelerate, brake) and streams vehicle state (latitude, longitude, heading, speed) to a browser-based map client via WebSocket.
 
