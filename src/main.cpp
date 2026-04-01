@@ -6,7 +6,6 @@
 #include <thread>
 
 // TODO: add functionality to compute lat, long, heading, speed, timestamp'. 
-// TODO: Add a websocket library 
 // TODO: Add a JSON library to serialize/deserialize data for websocket communication.
 
 
@@ -122,7 +121,7 @@ int main() {
     ix::uninitNetSystem();
     std::cout << "WebSocket stopped." << std::endl;
     // The 'myCar' object's destructor will be called automatically when main exits.
-    
+
     return 0;
 
 } 
