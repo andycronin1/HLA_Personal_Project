@@ -1,14 +1,11 @@
 #include <iostream>
 #include "Car.h"
 #include <ixwebsocket/IXNetSystem.h>
-#include <ixwebsocket/IXWebSocket.h>
-#include <chrono>
+#include <ixwebsocket/IXWebSocketServer.h>
 #include <thread>
 
 // TODO: add functionality to compute lat, long, heading, speed, timestamp'. 
 // TODO: Add a JSON library to serialize/deserialize data for websocket communication.
-
-
 
 // Function to display available commands
 void displayCommands() {
@@ -30,36 +27,79 @@ int main() {
     // When a client connects, send the current state of the car (lat, long, heading, speed) to the client in JSON format.
     // Continuously update the car's state based on user input and send updates to the client in real-time via the websocket connection.
 
-    // --------- WebSocket Setup --------- 
+    // --------- WebServer Setup --------- 
+
     ix::initNetSystem();
-    ix::WebSocket webSocket;
 
-    std::string url("wss://echo.websocket.org");
-    webSocket.setUrl(url);
+    int port = 8080;
+    std::string host("127.0.0.1"); // If you need this server to be accessible on a different machine, use "0.0.0.0"
+    ix::WebSocketServer server(port, host);
 
-    webSocket.setOnMessageCallback(
-        [&webSocket](const ix::WebSocketMessagePtr& msg)
+    server.setOnConnectionCallback(
+        [&server](std::weak_ptr<ix::WebSocket> webSocket,
+                std::shared_ptr<ix::ConnectionState> connectionState)
         {
-            if (msg->type == ix::WebSocketMessageType::Open)
+            std::cout << "Remote ip: " << connectionState->getRemoteIp() << std::endl;
+
+            // .lock() — safely convert to shared_ptr to use a weak ptr 
+            // .lock() atomically checks:
+            // If the object still exists → returns a shared_ptr (temporarily bumps ref count)
+            // If the object was destroyed → returns nullptr
+            // So reference count only increases if the object is still alive, preventing use-after-free errors.
+
+            // The is(ws) is needed AS WELL AS THE WEAK PTR because of the time gap between checking and using — another thread can destroy the object in between:
+            // The weak ptr will convert to a shared ptr if the object still exists, allowing us to safely use it. If it doesn't exist, we get a nullptr.
+            // Dereferencing a nullptr will cause a crash as it's referencing empty memory (if the web server has been destroyed, the weak ptr will return nullptr when .lock() is called).
+            // if(ws) is a safety check to ensure the object still exists before we try to use it. If ws is nullptr, we know the object was destroyed and we can avoid dereferencing it, preventing a crash.
+            // This is needed because another thread can destroy the web server object after we check if it exists but before we use it, which would lead to a use-after-free error. This scenario is commonly referred to as a TO
+            // This called a TOCTOU race — "Time Of Check, Time Of Use". The check and the use are two separate operations with a gap between them.
+            // .lock() eliminates the gap because it's atomic — it checks existence AND bumps the ref count in a single indivisible CPU operation. No other thread can sneak in between and cause a crash. 
+
+
+            auto ws = webSocket.lock();
+            if (ws)
             {
-                std::cout << "Connected\n";
-                webSocket.send("hello from ixwebsocket");
-            }
-            else if (msg->type == ix::WebSocketMessageType::Message)
-            {
-                std::cout << "Received: " << msg->str << "\n";
-            }
-            else if (msg->type == ix::WebSocketMessageType::Error)
-            {
-                std::cout << "Error: " << msg->errorInfo.reason << "\n";
+                ws->setOnMessageCallback([webSocket, connectionState](const ix::WebSocketMessagePtr& msg)
+                {
+                    if (msg->type == ix::WebSocketMessageType::Open)
+                    {
+                        std::cout << "New connection" << std::endl;
+                        std::cout << "id: " << connectionState->getId() << std::endl;
+                        std::cout << "Uri: " << msg->openInfo.uri << std::endl;
+
+                        std::cout << "Headers:" << std::endl;
+                        for (auto it : msg->openInfo.headers)
+                        {
+                            std::cout << it.first << ": " << it.second << std::endl;
+                        }
+                    }
+                    else if (msg->type == ix::WebSocketMessageType::Message)
+                    {
+                        auto ws = webSocket.lock();
+                        if (ws)
+                        {
+                            ws->send(msg->str, msg->binary);
+                        }
+                    }
+                });
             }
         });
 
-    webSocket.start();
+    auto res = server.listen();
+    if (!res.first)
+    {
+        std::cerr << "Server failed to listen on " << host << ":" << port << " — " << res.second << std::endl;
+        return 1;
+    }
+    std::cout << "WebSocket server listening on " << host << ":" << port << std::endl;
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    // Per message deflate connection is enabled by default. It can be disabled
+    // which might be helpful when running on low power devices such as a Rasbery Pi
+    server.disablePerMessageDeflate();
 
-    ix::uninitNetSystem();
+    // Run the server in the background. Server can be stoped by calling server.stop()
+    server.start();
+
 
     // --------- End WebSocket Setup ---------
 
@@ -102,7 +142,15 @@ int main() {
                 break;
             case 'v': // Display Vehicle State
                 myCar.DisplayVehicleState();
-                webSocket.send("Vehicle State: " + std::to_string(myCar.getVehicleState().latitude) + ", " + std::to_string(myCar.getVehicleState().longitude) + ", " + std::to_string(myCar.getVehicleState().heading) + ", " + std::to_string(myCar.getVehicleState().speed_mps));
+                {
+                    auto state = myCar.getVehicleState();
+                    std::string json = "{\"lat\":"     + std::to_string(state.latitude)  +
+                                    ",\"lon\":"     + std::to_string(state.longitude) +
+                                    ",\"heading\":" + std::to_string(state.heading)   +
+                                    ",\"speed\":"   + std::to_string(state.speed_mps) + "}";
+                    for (auto& client : server.getClients())
+                        client->send(json);
+                }
                 break;
             case 'h': // Show Commands
                 displayCommands();
@@ -117,11 +165,10 @@ int main() {
         }
     }
 
-    webSocket.stop();
+    server.stop(); // Stop the websocket server when exiting the program
+
     ix::uninitNetSystem();
-    std::cout << "WebSocket stopped." << std::endl;
-    // The 'myCar' object's destructor will be called automatically when main exits.
 
     return 0;
 
-} 
+}

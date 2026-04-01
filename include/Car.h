@@ -12,7 +12,7 @@ struct VehicleState {
     double heading; // Direction in degrees (0-360)
     double speed_mps;
     // Default constructor
-    VehicleState() : latitude(0.0), longitude(0.0), heading(0.0), speed_mps(0.0) {}
+    VehicleState() : latitude(53.3498), longitude(-6.2603), heading(0.0), speed_mps(0.0) {}
     VehicleState(double lat, double lon, double head, double speed): latitude(lat), longitude(lon), heading(head), speed_mps(speed) {}
 };
 
