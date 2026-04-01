@@ -35,7 +35,8 @@ int main() {
     ix::initNetSystem();
     ix::WebSocket webSocket;
 
-    webSocket.setUrl("wss://ws.ifelse.io");
+    std::string url("wss://echo.websocket.org");
+    webSocket.setUrl(url);
 
     webSocket.setOnMessageCallback(
         [&webSocket](const ix::WebSocketMessagePtr& msg)
@@ -58,7 +59,6 @@ int main() {
     webSocket.start();
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
-    webSocket.stop();
 
     ix::uninitNetSystem();
 
@@ -80,10 +80,11 @@ int main() {
     Entities::Car myCar("Deloitte Mobile", 100, 50);
 
     char command; // To store user input
+    bool running = true;
     displayCommands(); // Show commands initially
 
     // Main input loop
-    while (true) {
+    while (running) {
         std::cout << "\nEnter command (h for help): ";
         std::cin >> command; // Read a single character from the keyboard
 
@@ -102,20 +103,26 @@ int main() {
                 break;
             case 'v': // Display Vehicle State
                 myCar.DisplayVehicleState();
+                webSocket.send("Vehicle State: " + std::to_string(myCar.getVehicleState().latitude) + ", " + std::to_string(myCar.getVehicleState().longitude) + ", " + std::to_string(myCar.getVehicleState().heading) + ", " + std::to_string(myCar.getVehicleState().speed_mps));
                 break;
             case 'h': // Show Commands
                 displayCommands();
                 break;
             case 'q': // Quit
                 std::cout << "Exiting car simulation. Goodbye!" << std::endl;
-                return 0; // Exit the program
+                running = false;
+                break;
             default:
                 std::cout << "Invalid command. Press 'h' for help." << std::endl;
                 break;
         }
     }
 
+    webSocket.stop();
+    ix::uninitNetSystem();
+    std::cout << "WebSocket stopped." << std::endl;
     // The 'myCar' object's destructor will be called automatically when main exits.
+    
     return 0;
 
 } 

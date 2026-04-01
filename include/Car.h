@@ -33,9 +33,8 @@ public:
     void UpdatePosition(double latitude, double longitude);
     void UpdateHeading(double heading);
 
-
-
-
+    // Getter Functions
+    VehicleState getVehicleState() const;
 
     // Destructor
      ~Car();

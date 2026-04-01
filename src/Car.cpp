@@ -77,4 +77,8 @@ void Car::DisplayVehicleState() const {
 
 }
 
+// Getter for VehicleState
+VehicleState Car::getVehicleState() const {
+    return VehicleState_;
+}
 }
