@@ -1,14 +1,15 @@
 #include <iostream>
 #include "Car.h"
-
+#include <ixwebsocket/IXNetSystem.h>
+#include <ixwebsocket/IXWebSocket.h>
+#include <chrono>
+#include <thread>
 
 // TODO: add functionality to compute lat, long, heading, speed, timestamp'. 
 // TODO: Add a websocket library 
 // TODO: Add a JSON library to serialize/deserialize data for websocket communication.
 
-// Start the websocket server and listen for incoming connections from the client (e.g., a web application).
-// When a client connects, send the current state of the car (lat, long, heading, speed) to the client in JSON format.
-// Continuously update the car's state based on user input and send updates to the client in real-time via the websocket connection.
+
 
 // Function to display available commands
 void displayCommands() {
@@ -26,6 +27,43 @@ std::cout << "----------------------------" << std::endl;
 
 int main() { 
 
+    // Start the websocket server and listen for incoming connections from the client (e.g., a web application).
+    // When a client connects, send the current state of the car (lat, long, heading, speed) to the client in JSON format.
+    // Continuously update the car's state based on user input and send updates to the client in real-time via the websocket connection.
+
+    // --------- WebSocket Setup --------- 
+    ix::initNetSystem();
+    ix::WebSocket webSocket;
+
+    std::string url("wss://echo.websocket.org");
+    webSocket.setUrl(url);
+
+    webSocket.setOnMessageCallback(
+        [&webSocket](const ix::WebSocketMessagePtr& msg)
+        {
+            if (msg->type == ix::WebSocketMessageType::Open)
+            {
+                std::cout << "Connected\n";
+                webSocket.send("hello from ixwebsocket");
+            }
+            else if (msg->type == ix::WebSocketMessageType::Message)
+            {
+                std::cout << "Received: " << msg->str << "\n";
+            }
+            else if (msg->type == ix::WebSocketMessageType::Error)
+            {
+                std::cout << "Error: " << msg->errorInfo.reason << "\n";
+            }
+        });
+
+    webSocket.start();
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    ix::uninitNetSystem();
+
+    // --------- End WebSocket Setup ---------
+
     // Confirm C++ version
     if (__cplusplus == 202302L) std::cout << "C++23";
     else if (__cplusplus == 202002L) std::cout << "C++20";
@@ -42,10 +80,11 @@ int main() {
     Entities::Car myCar("Deloitte Mobile", 100, 50);
 
     char command; // To store user input
+    bool running = true;
     displayCommands(); // Show commands initially
 
     // Main input loop
-    while (true) {
+    while (running) {
         std::cout << "\nEnter command (h for help): ";
         std::cin >> command; // Read a single character from the keyboard
 
@@ -64,20 +103,26 @@ int main() {
                 break;
             case 'v': // Display Vehicle State
                 myCar.DisplayVehicleState();
+                webSocket.send("Vehicle State: " + std::to_string(myCar.getVehicleState().latitude) + ", " + std::to_string(myCar.getVehicleState().longitude) + ", " + std::to_string(myCar.getVehicleState().heading) + ", " + std::to_string(myCar.getVehicleState().speed_mps));
                 break;
             case 'h': // Show Commands
                 displayCommands();
                 break;
             case 'q': // Quit
                 std::cout << "Exiting car simulation. Goodbye!" << std::endl;
-                return 0; // Exit the program
+                running = false;
+                break;
             default:
                 std::cout << "Invalid command. Press 'h' for help." << std::endl;
                 break;
         }
     }
 
+    webSocket.stop();
+    ix::uninitNetSystem();
+    std::cout << "WebSocket stopped." << std::endl;
     // The 'myCar' object's destructor will be called automatically when main exits.
+    
     return 0;
 
 } 
