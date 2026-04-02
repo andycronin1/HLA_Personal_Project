@@ -8,7 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
    # Define the source files for your executable
 set(SOURCES
-    src/main.cpp
+    src/HLA_main.cpp
     src/Car.cpp 
     # Add any other .cpp files here
 )

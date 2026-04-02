@@ -20,6 +20,20 @@ Car::~Car() {
     }
 }
 
+// HLA Setup 
+
+void Car::initializeRTI()
+{
+    logMessage("INFO", "Creating RTI ambassador.");
+
+    std::unique_ptr<RTIambassadorFactory> rtiAmbFactory(new RTIambassadorFactory());
+    RTIambassador* rtiAmb = rtiAmbFactory->createRTIambassador().release();
+    rtiAmb_ = std::unique_ptr<RTIambassador>(rtiAmb);
+
+    rtiAmb_->connect(*this, HLA_EVOKED);
+    logMessage("INFO", "Connected to RTI.");
+}
+
 // Public Member Function Implementation
 
 void Car::StartEngine() {
@@ -75,6 +89,15 @@ void Car::DisplayVehicleState() const {
     std::cout << "  Heading: " << VehicleState_.heading << " degrees" << std::endl;
     std::cout << "  Speed: " << VehicleState_.speed_mps << " mps" << std::endl;
 
+}
+
+// Private Member Function Implementation
+
+void Car::RunSetup() {
+    initializeRTI();
+    // createOrJoinFederation();
+    // publishAndSubscribe();
+    // reserveLocalObjectInstanceName(L"DeloitteCarInstance");
 }
 
 // Getter for VehicleState

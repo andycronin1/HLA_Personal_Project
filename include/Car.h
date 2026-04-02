@@ -2,6 +2,10 @@
 
 #include <string>
 #include <vector>
+#include <RTI/RTIambassadorFactory.h>
+#include <RTI/NullFederateAmbassador.h>
+#include <RTI/RTIambassador.h>
+#include <RTI/Exception.h>
 
 namespace Entities {
 
@@ -16,7 +20,7 @@ struct VehicleState {
     VehicleState(double lat, double lon, double head, double speed): latitude(lat), longitude(lon), heading(head), speed_mps(speed) {}
 };
 
-class Car {
+class Car : public RTI::NullFederateAmbassador {
 public: 
 
     // Constructor
@@ -48,6 +52,13 @@ private:
     double time;
 
     VehicleState VehicleState_;
+
+    // HLA setup 
+    void initializeRTI();
+    // void createOrJoinFederation();
+    // void publishAndSubscribe();
+    // void reserveLocalObjectInstanceName(const std::wstring& objectInstanceName);
+    void RunSetup(); // Function to run all setup steps
 };
 
 }
