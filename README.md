@@ -1,40 +1,43 @@
-# HLA Car Sim 
+# HLA Car Sim
 
-A C++17 car simulation with real-time WebSocket telemetry. The simulation accepts keyboard commands to control a vehicle (start engine, accelerate, brake) and streams vehicle state (latitude, longitude, heading, speed) to a browser-based map client via WebSocket.
+A C++ vehicle simulation built on the **HLA 1516e** standard using the **MAK RTI**. The simulation accepts keyboard commands to control a vehicle (start engine, accelerate, brake) and tracks vehicle state (latitude, longitude, heading, speed) with planned real-time WebSocket telemetry broadcast to a browser-based map client.
 
 ## Requirements
 
-- CMake 3.10+
-- A C++ compiler with C++17 support (clang++ or g++)
-- [ixwebsocket](https://github.com/machinezone/IXWebSocket) (included in `external/`)
+- **CMake 3.10+**
+- **MSVC** (Visual Studio Build Tools 2019+) with C++14 support
+- **MAK RTI 5.0+** — set the `MAK_RTI_HOME` environment variable to your install directory
+- Windows (x64)
+
+## Setup
+
+Set the `MAK_RTI_HOME` environment variable before building:
+
+```powershell
+$env:MAK_RTI_HOME = "C:\MAK\makRti5.0.1"
+```
+
+Or set it permanently via System Properties > Environment Variables.
 
 ## Build
 
-**First time / after changing CMakeLists.txt:**
-```bash
-./build.sh
+**Full clean build (Windows):**
+```powershell
+.\full_build.bat
 ```
 
-**Incremental builds (day-to-day development):**
-```bash
-cmake --build build/
-```
+This deletes the `build/` directory, runs CMake, and builds in Release mode. The executable is placed in `bin/`.
 
-The executable is placed in `bin/`.
+**Incremental builds:**
+```powershell
+cmake --build build --config Release
+```
 
 ## Run
 
-**1. Start the simulation:**
-```bash
-./bin/HLA_Personal_Project
+```powershell
+.\bin\HLA_Personal_Project.exe
 ```
-
-**2. Open the map client** (in a separate terminal or directly from Finder):
-```bash
-open data/map.html
-```
-
-The WebSocket server starts automatically on `ws://127.0.0.1:8080`. The map will connect as soon as the sim is running.
 
 ## Commands
 
@@ -45,19 +48,29 @@ The WebSocket server starts automatically on `ws://127.0.0.1:8080`. The map will
 | `w` | Accelerate (+10 mps) |
 | `b` | Brake (stop immediately) |
 | `d` | Display current speed |
-| `v` | Display vehicle state + broadcast over WebSocket |
+| `v` | Display full vehicle state |
 | `h` | Show commands |
 | `q` | Quit |
 
+## HLA / RTI Integration
+
+The `Car` class extends `rti1516e::NullFederateAmbassador` and connects to the MAK RTI via `RTIambassadorFactory`. The CMake build links against:
+
+- `librti1516e64` (Release)
+- `librti1516e64d` (Debug)
+- `ws2_32` (Windows Sockets)
+
+Build warnings C4290 and C5040 from the MAK RTI headers are expected and harmless — they reflect the library's pre-C++17 exception specification syntax.
+
 ## Map Client
 
-`data/map.html` is a Leaflet.js map that connects to the WebSocket server. When the `v` command is used in the sim, the car's position is sent as JSON and the map updates in real time:
+`data/map.html` is a Leaflet.js map intended to connect to a WebSocket server. When vehicle state is broadcast, the map updates in real time:
 
 - The car is rendered as a **directional SVG icon** that rotates with the vehicle's heading
 - The map pans to keep the car in view
 - A popup shows current speed and heading
 
-The JSON payload format is:
+Planned JSON payload format:
 ```json
 { "lat": 53.3498, "lon": -6.2603, "heading": 0.0, "speed": 10.0 }
 ```
@@ -65,15 +78,17 @@ The JSON payload format is:
 ## Project Structure
 
 ```
-HLA_Personal_Project/
+HLA_Car_Sim/
 ├── CMakeLists.txt        # Build configuration
-├── build.sh              # Full clean build script
-├── include/              # Header files (Car.h)
-├── src/                  # Source files (main.cpp, Car.cpp)
-├── external/ixwebsocket/ # WebSocket library
-├── bin/                  # Built executable
-├── build/                # CMake-generated build files
-├── data/                 # Map client (map.html)
-├── doc/                  # Documentation
-└── lib/                  # Libraries
+├── full_build.bat        # Full clean build script (Windows)
+├── include/
+│   └── Car.h             # Car class declaration (HLA federate ambassador)
+├── src/
+│   ├── HLA_main.cpp      # Entry point and command loop
+│   └── Car.cpp           # Car class implementation
+├── external/
+│   └── ixwebsocket/      # WebSocket library (TLS enabled)
+├── data/
+│   └── map.html          # Leaflet.js browser map client
+└── bin/                  # Built executable output
 ```

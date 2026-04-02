@@ -24,14 +24,14 @@ Car::~Car() {
 
 void Car::initializeRTI()
 {
-    logMessage("INFO", "Creating RTI ambassador.");
+    std::cout << "INFO: Creating RTI ambassador." << std::endl;
 
-    std::unique_ptr<RTIambassadorFactory> rtiAmbFactory(new RTIambassadorFactory());
-    RTIambassador* rtiAmb = rtiAmbFactory->createRTIambassador().release();
-    rtiAmb_ = std::unique_ptr<RTIambassador>(rtiAmb);
+    std::unique_ptr<rti1516e::RTIambassadorFactory> rtiAmbFactory(new rti1516e::RTIambassadorFactory());
+    rti1516e::RTIambassador* rtiAmb = rtiAmbFactory->createRTIambassador().release();
+    rtiAmb_ = std::unique_ptr<rti1516e::RTIambassador>(rtiAmb);
 
-    rtiAmb_->connect(*this, HLA_EVOKED);
-    logMessage("INFO", "Connected to RTI.");
+    rtiAmb_->connect(*this, rti1516e::HLA_EVOKED);
+    std::cout << "INFO: Connected to RTI." << std::endl;
 }
 
 // Public Member Function Implementation

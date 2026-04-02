@@ -1,5 +1,6 @@
 #pragma once 
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <RTI/RTIambassadorFactory.h>
@@ -20,7 +21,7 @@ struct VehicleState {
     VehicleState(double lat, double lon, double head, double speed): latitude(lat), longitude(lon), heading(head), speed_mps(speed) {}
 };
 
-class Car : public RTI::NullFederateAmbassador {
+class Car : public rti1516e::NullFederateAmbassador {
 public: 
 
     // Constructor
@@ -59,6 +60,8 @@ private:
     // void publishAndSubscribe();
     // void reserveLocalObjectInstanceName(const std::wstring& objectInstanceName);
     void RunSetup(); // Function to run all setup steps
+
+    std::unique_ptr<rti1516e::RTIambassador> rtiAmb_;
 };
 
 }

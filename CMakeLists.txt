@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(HLA_Personal_Project LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -49,7 +49,7 @@ set(SOURCES
 
 # ixwebsocket defaults TLS off; enable it so wss:// URLs work.
 set(USE_TLS ON CACHE BOOL "Enable TLS support for ixwebsocket" FORCE)
-add_subdirectory(external/ixwebsocket)
+# add_subdirectory(external/ixwebsocket)
 
 # Add the executable target
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -58,7 +58,7 @@ target_include_directories(${PROJECT_NAME}
 PUBLIC ${CMAKE_SOURCE_DIR}/include 
 PRIVATE ${MAK_RTI_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ixwebsocket
+target_link_libraries(${PROJECT_NAME} PRIVATE
 $<$<CONFIG:Debug>:${MAK_RTI_LIB_DEBUG}>
   $<$<NOT:$<CONFIG:Debug>>:${MAK_RTI_LIB}>
   ws2_32)
