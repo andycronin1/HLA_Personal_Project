@@ -57,6 +57,12 @@ The WebSocket server starts automatically on `ws://127.0.0.1:8080`. The map will
 - The map pans to keep the car in view
 - A popup shows current speed and heading
 
+### Map Preview
+
+Sample preview of the browser map and car marker:
+
+![Map and car preview](data/map-car-preview.svg)
+
 The JSON payload format is:
 ```json
 { "lat": 53.3498, "lon": -6.2603, "heading": 0.0, "speed": 10.0 }

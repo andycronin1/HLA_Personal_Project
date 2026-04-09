@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Map and Car Preview</title>
+  <desc id="desc">Stylized map preview with a route and a blue car marker.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#dff4e7"/>
+      <stop offset="100%" stop-color="#eef7ff"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#19324a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="700" fill="url(#bg)"/>
+
+  <g stroke="#d3e7d8" stroke-width="4" opacity="0.9">
+    <path d="M40 120 H1160"/>
+    <path d="M40 240 H1160"/>
+    <path d="M40 360 H1160"/>
+    <path d="M40 480 H1160"/>
+    <path d="M40 600 H1160"/>
+    <path d="M180 40 V660"/>
+    <path d="M380 40 V660"/>
+    <path d="M600 40 V660"/>
+    <path d="M820 40 V660"/>
+    <path d="M1020 40 V660"/>
+  </g>
+
+  <g stroke="#8cc9a4" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.95">
+    <path d="M130 560 C 240 520, 300 470, 430 430 C 590 380, 650 300, 760 280 C 920 250, 990 190, 1090 120"/>
+  </g>
+
+  <g>
+    <circle cx="130" cy="560" r="10" fill="#1e7d4f"/>
+    <circle cx="1090" cy="120" r="10" fill="#1e7d4f"/>
+  </g>
+
+  <g transform="translate(720 295) rotate(-22)" filter="url(#softShadow)">
+    <rect x="-54" y="-24" width="108" height="48" rx="14" fill="#1a73e8"/>
+    <rect x="-34" y="-18" width="68" height="22" rx="8" fill="#b9dcff"/>
+    <circle cx="-30" cy="30" r="12" fill="#1f2a35"/>
+    <circle cx="30" cy="30" r="12" fill="#1f2a35"/>
+    <circle cx="-30" cy="30" r="5" fill="#8a99a8"/>
+    <circle cx="30" cy="30" r="5" fill="#8a99a8"/>
+    <polygon points="56,-6 76,0 56,6" fill="#fca311"/>
+  </g>
+
+  <g transform="translate(54,54)">
+    <rect x="0" y="0" width="420" height="110" rx="16" fill="#ffffff" opacity="0.9"/>
+    <text x="24" y="44" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#143a52">HLA Car Sim Map Preview</text>
+    <text x="24" y="80" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#2f5d77">Live vehicle telemetry on a browser map via WebSocket</text>
+  </g>
+</svg>
