@@ -12,14 +12,15 @@ void displayCommands() {
 std::cout << "\n--- Car Control Commands ---" << std::endl;
 std::cout << "  's' : Start Engine" << std::endl;
 std::cout << "  'o' : Stop Engine" << std::endl;
-std::cout << "  'w' : Accelerate (by 10 mph)" << std::endl;
+std::cout << "  'w' : Move Forward by 1" << std::endl;
+std::cout << "  'a' : Accelerate (increase speed)" << std::endl;
 std::cout << "  'b' : Brake (stop immediately)" << std::endl;
 std::cout << "  'd' : Display Current Speed" << std::endl;
 std::cout << "  'v' : Display Vehicle State" << std::endl;
 std::cout << "  'h' : Show Commands" << std::endl;
 std::cout << "  'q' : Quit" << std::endl;
 std::cout << "----------------------------" << std::endl;
-};   
+};  
 
 int main() { 
 
@@ -32,7 +33,7 @@ int main() {
     ix::initNetSystem();
 
     int port = 8080;
-    std::string host("127.0.0.1"); // If you need this server to be accessible on a different machine, use "0.0.0.0"
+    std::string host("127.0.0.1"); 
     ix::WebSocketServer server(port, host);
 
     server.setOnConnectionCallback(
@@ -131,7 +132,7 @@ int main() {
             case 's': // Start Engine
                 myCar.StartEngine();
                 break;
-            case 'w': // Accelerate
+            case 'a': // Accelerate
                 myCar.Accelerate(10.0, 10.0); // Accelerate by 10 mps over 10 seconds
                 break;
             case 'b': // Brake
@@ -158,6 +159,18 @@ int main() {
             case 'q': // Quit
                 std::cout << "Exiting car simulation. Goodbye!" << std::endl;
                 running = false;
+                break;
+            case 'w':
+                myCar.MoveForward();
+                {
+                    auto state = myCar.getVehicleState();
+                    std::string json = "{\"lat\":"     + std::to_string(state.latitude)  +
+                                    ",\"lon\":"     + std::to_string(state.longitude) +
+                                    ",\"heading\":" + std::to_string(state.heading)   +
+                                    ",\"speed\":"   + std::to_string(state.speed_mps) + "}";
+                    for (auto& client : server.getClients())
+                        client->send(json);
+                }
                 break;
             default:
                 std::cout << "Invalid command. Press 'h' for help." << std::endl;

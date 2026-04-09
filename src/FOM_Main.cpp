@@ -1,22 +1,17 @@
 #include <iostream>
 #include "Car.h"
-#include <ixwebsocket/IXNetSystem.h>
-#include <ixwebsocket/IXWebSocket.h>
-#include <chrono>
+
 #include <thread>
 
 // TODO: add functionality to compute lat, long, heading, speed, timestamp'. 
 // TODO: Add a JSON library to serialize/deserialize data for websocket communication.
-
-
 
 // Function to display available commands
 void displayCommands() {
 std::cout << "\n--- Car Control Commands ---" << std::endl;
 std::cout << "  's' : Start Engine" << std::endl;
 std::cout << "  'o' : Stop Engine" << std::endl;
-std::cout << "  'w' : Move Forward by 1" << std::endl;
-std::cout << "  'a' : Accelerate (increase speed)" << std::endl;
+std::cout << "  'w' : Accelerate (by 10 mph)" << std::endl;
 std::cout << "  'b' : Brake (stop immediately)" << std::endl;
 std::cout << "  'd' : Display Current Speed" << std::endl;
 std::cout << "  'v' : Display Vehicle State" << std::endl;
@@ -27,40 +22,7 @@ std::cout << "----------------------------" << std::endl;
 
 int main() { 
 
-    // Start the websocket server and listen for incoming connections from the client (e.g., a web application).
-    // When a client connects, send the current state of the car (lat, long, heading, speed) to the client in JSON format.
-    // Continuously update the car's state based on user input and send updates to the client in real-time via the websocket connection.
-
-    // --------- WebSocket Setup --------- 
-    ix::initNetSystem();
-    ix::WebSocket webSocket;
-
-    std::string url("wss://echo.websocket.org");
-    webSocket.setUrl(url);
-
-    webSocket.setOnMessageCallback(
-        [&webSocket](const ix::WebSocketMessagePtr& msg)
-        {
-            if (msg->type == ix::WebSocketMessageType::Open)
-            {
-                std::cout << "Connected\n";
-                webSocket.send("hello from ixwebsocket");
-            }
-            else if (msg->type == ix::WebSocketMessageType::Message)
-            {
-                std::cout << "Received: " << msg->str << "\n";
-            }
-            else if (msg->type == ix::WebSocketMessageType::Error)
-            {
-                std::cout << "Error: " << msg->errorInfo.reason << "\n";
-            }
-        });
-
-    webSocket.start();
-
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-
-    ix::uninitNetSystem();
+    // Initiliase the RTI 
 
     // --------- End WebSocket Setup ---------
 
@@ -92,7 +54,7 @@ int main() {
             case 's': // Start Engine
                 myCar.StartEngine();
                 break;
-            case 'a': // Accelerate
+            case 'w': // Accelerate
                 myCar.Accelerate(10.0, 10.0); // Accelerate by 10 mps over 10 seconds
                 break;
             case 'b': // Brake
@@ -103,7 +65,15 @@ int main() {
                 break;
             case 'v': // Display Vehicle State
                 myCar.DisplayVehicleState();
-                webSocket.send("Vehicle State: " + std::to_string(myCar.getVehicleState().latitude) + ", " + std::to_string(myCar.getVehicleState().longitude) + ", " + std::to_string(myCar.getVehicleState().heading) + ", " + std::to_string(myCar.getVehicleState().speed_mps));
+                {
+                    auto state = myCar.getVehicleState();
+                    std::string json = "{\"lat\":"     + std::to_string(state.latitude)  +
+                                    ",\"lon\":"     + std::to_string(state.longitude) +
+                                    ",\"heading\":" + std::to_string(state.heading)   +
+                                    ",\"speed\":"   + std::to_string(state.speed_mps) + "}";
+                    for (auto& client : server.getClients())
+                        client->send(json);
+                }
                 break;
             case 'h': // Show Commands
                 displayCommands();
@@ -112,20 +82,12 @@ int main() {
                 std::cout << "Exiting car simulation. Goodbye!" << std::endl;
                 running = false;
                 break;
-            case 'w':
-                myCar.MoveForward();
-                break;
             default:
                 std::cout << "Invalid command. Press 'h' for help." << std::endl;
                 break;
         }
     }
 
-    webSocket.stop();
-    ix::uninitNetSystem();
-    std::cout << "WebSocket stopped." << std::endl;
-    // The 'myCar' object's destructor will be called automatically when main exits.
-
     return 0;
 
-} 
+}

@@ -74,8 +74,22 @@ void Car::DisplayVehicleState() const {
     std::cout << "  Longitude: " << VehicleState_.longitude << std::endl;
     std::cout << "  Heading: " << VehicleState_.heading << " degrees" << std::endl;
     std::cout << "  Speed: " << VehicleState_.speed_mps << " mps" << std::endl;
-
 }
+
+void Car::MoveForward() {
+    double distance = 1; 
+    // Simple movement model: move forward based on current heading and speed
+    double radians = VehicleState_.heading * (3.14159265358979323846 / 180.0); // Convert heading to radians
+    double deltaLatitude = distance * cos(radians) / 111320; // Approximate conversion from meters to degrees latitude
+    double deltaLongitude = distance * sin(radians) / (111320 * cos(VehicleState_.latitude * (3.14159265358979323846 / 180.0))); // Approximate conversion from meters to degrees longitude
+
+    VehicleState_.latitude += deltaLatitude;
+    VehicleState_.longitude += deltaLongitude;
+
+    Car::DisplayVehicleState();
+}
+
+
 
 // Getter for VehicleState
 VehicleState Car::getVehicleState() const {
